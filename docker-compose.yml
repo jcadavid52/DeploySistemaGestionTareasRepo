@@ -1,0 +1,42 @@
+version: "3.9"
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:latest
+    container_name: serverGestionTareasDb
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Colombia2025*
+    ports:
+      - "1438:1433"
+    volumes:
+      - sql_data:/var/opt/mssql
+    networks:
+      - networkdocker
+  
+  gestiontareasapi:
+    image: jcadavid1231/gestiontareas:backend
+    container_name: getion-tareas-backend
+    ports:
+      - "6055:8080"
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=GestionTareasDb;User Id=sa;Password=Colombia2025*;TrustServerCertificate=True;Encrypt=False;
+    depends_on:
+      - sqlserver
+    networks:
+      - networkdocker
+  
+  web:
+    image: jcadavid1231/gestiontareas:frontend
+    container_name: gestion_tareas_frontend
+    ports:
+      - "5004:80"
+    depends_on:
+      - gestiontareasapi
+    networks:
+      - networkdocker
+
+networks:
+  networkdocker:
+    driver: bridge
+volumes:
+  sql_data:
